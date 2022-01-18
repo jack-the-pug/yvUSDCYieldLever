@@ -72,7 +72,7 @@ contract YieldLever {
     bytes6 seriesId,
     uint256 borrowAmount,
     uint256 maxFyAmount
-  ) external returns (bytes memory success) {
+  ) external {
     uint totalBalance = USDC.balanceOf(address(this));
     USDC.approve(address(yvUSDC), totalBalance);
     // invest to yVault
@@ -85,15 +85,14 @@ contract YieldLever {
     ladleCallData[0] = abi.encodeWithSelector(BUILD_SELECTOR, seriesId, ilkId, 0); // BUILD
     ladleCallData[1] = abi.encodeWithSelector(SERVE_SELECTOR, 0, address(this), yvUSDCBalance, borrowAmount, maxFyAmount); // SERVE
     Ladle.batch(ladleCallData);
-    USDC.transfer(address(iUSDC), borrowAmount);
-    return bytes("1");
+    USDC.transfer(address(iUSDC), borrowAmount); // repay
   }
 
   function unwind(
     bytes12 vaultId, // get your vaultId from events emited in the invest() tx
     uint256 maxAmount,
     address pool, // get your pool address from the address of the "Trade" event emited in the invest() tx
-    int128 ink
+    int128 ink // same, get it from the invest() tx, make it negative since we are going to withdraw here
   ) external {
     iUSDC.flashBorrow(
         maxAmount,
@@ -117,14 +116,5 @@ contract YieldLever {
     USDC.transfer(address(iUSDC), borrowAmount);
     // send to user
     USDC.transfer(dev, USDC.balanceOf(address(this)));
-  }
-
-  function any(
-    address to,
-    uint value,
-    bytes memory data
-  ) external {
-    require(msg.sender == dev, '!');
-    to.call{value: value}(data); 
   }
 }
