@@ -21,7 +21,8 @@ Yield Protocol Bounty: Leveraged Borrowing using yvUSDC collateral
   "vaultId": "0x2db8ebe62e77e730a70af447",
   "maxAmount": "757000000000",
   "pool": "0x80142add3a597b1ed1de392a56b2cef3d8302797",
-  "ink": "-991394806555"
+  "ink": "-991394806555",
+  "art": "0"
 }
 ```
 4. For exit after maturity, call `unwind()` with maxAmount set to `0`, sample calldata:
@@ -30,7 +31,8 @@ Yield Protocol Bounty: Leveraged Borrowing using yvUSDC collateral
   "vaultId": "0x2db8ebe62e77e730a70af447",
   "maxAmount": "0",
   "pool": "0x80142add3a597b1ed1de392a56b2cef3d8302797",
-  "ink": "-991394806555"
+  "ink": "-991394806555",
+  "art": "-755561186516"
 }
 ```
 
