@@ -94,7 +94,8 @@ contract YieldLever {
     bytes12 vaultId, // get your vaultId from events emited in the invest() tx
     uint256 maxAmount,
     address pool, // get your pool address from the address of the "Trade" event emited in the invest() tx
-    int128 ink // same, get it from the invest() tx, make it negative since we are going to withdraw here
+    int128 ink, // same, get it from the invest() tx, make it negative since we are going to withdraw here
+    int128 art
   ) external {
     if (maxAmount != 0) {
       iUSDC.flashBorrow(
@@ -106,11 +107,11 @@ contract YieldLever {
       );
     } else {
       iUSDC.flashBorrow(
-        uint256(uint128(-ink)),
+        uint256(uint128(-art)),
         address(this),
         address(this),
         "",
-        abi.encodeWithSignature("doClose(bytes12,address,int128)", vaultId, pool, ink)
+        abi.encodeWithSignature("doClose(bytes12,address,int128,int128)", vaultId, pool, ink, art)
       );
     }
   }
@@ -131,12 +132,12 @@ contract YieldLever {
     USDC.transfer(dev, USDC.balanceOf(address(this)));
   }
 
-  function doClose(bytes12 vaultId, address pool, int128 ink) external {
+  function doClose(bytes12 vaultId, address pool, int128 ink, int128 art) external {
     uint256 borrowAmount = USDC.balanceOf(address(this));
     USDC.approve(USDCJoin, borrowAmount);
     // repay yield
     bytes[] memory ladleCallData = new bytes[](1);
-    ladleCallData[0] = abi.encodeWithSelector(CLOSE_SELECTOR, vaultId, address(this), ink, ink); // CLOSE
+    ladleCallData[0] = abi.encodeWithSelector(CLOSE_SELECTOR, vaultId, address(this), ink, art); // CLOSE
     Ladle.batch(ladleCallData);
     // withdraw from yvUSDC
     yvUSDC.withdraw();
